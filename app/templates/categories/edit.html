@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}カテゴリを編集 - タスク管理{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/categories">カテゴリ一覧</a></li>
+            <li class="breadcrumb-item active">{{ category.name }} を編集</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="card">
+    <div class="card-header"><h2 class="h5 mb-0">カテゴリを編集</h2></div>
+    <div class="card-body">
+        <form method="POST" action="/categories/{{ category.id }}" data-testid="edit-category-form">
+            <div class="mb-3">
+                <label class="form-label" for="name">カテゴリ名 <span class="text-danger">*</span></label>
+                <input type="text" id="name" name="name" class="form-control" required
+                    value="{{ category.name }}" data-testid="input-name">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="color">カラーコード <span class="text-danger">*</span></label>
+                <div class="d-flex gap-2 align-items-center">
+                    <input type="color" id="color_picker" value="{{ category.color }}"
+                        oninput="document.getElementById('color').value = this.value">
+                    <input type="text" id="color" name="color" class="form-control" value="{{ category.color }}"
+                        pattern="^#[0-9a-fA-F]{6}$" required data-testid="input-color"
+                        placeholder="#RRGGBB"
+                        oninput="document.getElementById('color_picker').value = this.value">
+                </div>
+                <div class="form-text">#RRGGBB 形式で入力してください</div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary" data-testid="btn-submit">保存する</button>
+                <a href="/categories" class="btn btn-outline-secondary">キャンセル</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

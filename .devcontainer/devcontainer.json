@@ -13,18 +13,31 @@
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "pip3 install --user -r requirements.txt",
-
-	// Configure tool-specific properties.
-	// "customizations": {},
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+	"forwardPorts": [8000],
+	"portsAttributes": {
+		"8000": {
+			"label": "FastAPI App",
+			"onAutoForward": "openPreview"
+		}
+	},
+	"postCreateCommand": "pip3 install -r requirements-dev.txt && playwright install chromium --with-deps",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-playwright.playwright"
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "/usr/local/bin/python3",
+				"python.testing.pytestEnabled": true,
+				"python.testing.pytestArgs": ["tests"]
+			}
+		}
+	},
 	"containerEnv": {
-    	"TZ": "Asia/Tokyo"
+		"TZ": "Asia/Tokyo",
+		"DATABASE_URL": "sqlite:///./taskdb.sqlite3",
+		"APP_ENV": "development"
 	}
 }

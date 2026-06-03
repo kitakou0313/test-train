@@ -1,0 +1,49 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.card-status {
+    border-left: 4px solid;
+}
+
+.card-status-todo {
+    border-left-color: #6c757d;
+}
+
+.card-status-in-progress {
+    border-left-color: #0d6efd;
+}
+
+.card-status-done {
+    border-left-color: #198754;
+}
+
+.card-status-cancelled {
+    border-left-color: #212529;
+}
+
+.overdue {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.color-swatch {
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    vertical-align: middle;
+}
+
+.task-description {
+    white-space: pre-wrap;
+}
+
+.priority-indicator {
+    font-size: 0.75rem;
+}

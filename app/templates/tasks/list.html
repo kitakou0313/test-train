@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}タスク一覧 - タスク管理{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">タスク一覧</h1>
+    <a href="/tasks/new" class="btn btn-primary" data-testid="btn-create-task">+ タスクを作成</a>
+</div>
+
+<!-- フィルタフォーム -->
+<form method="GET" action="/tasks" class="card card-body mb-4" data-testid="filter-form">
+    <div class="row g-2 align-items-end">
+        <div class="col-sm-3">
+            <label class="form-label small">ステータス</label>
+            <select name="status" class="form-select form-select-sm" data-testid="filter-status">
+                <option value="">すべて</option>
+                {% for val, label in STATUS_LABELS.items() %}
+                <option value="{{ val }}" {% if filter_status == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label small">カテゴリ</label>
+            <select name="category_id" class="form-select form-select-sm" data-testid="filter-category">
+                <option value="">すべて</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if filter_category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-4">
+            <label class="form-label small">キーワード</label>
+            <input type="text" name="search" class="form-control form-control-sm" value="{{ filter_search or '' }}" placeholder="タイトル・説明を検索" data-testid="filter-search">
+        </div>
+        <div class="col-sm-2">
+            <button type="submit" class="btn btn-outline-secondary btn-sm w-100">絞り込む</button>
+        </div>
+    </div>
+</form>
+
+<!-- タスクテーブル -->
+{% if tasks %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle" data-testid="task-table">
+        <thead class="table-light">
+            <tr>
+                <th>タイトル</th>
+                <th>カテゴリ</th>
+                <th>優先度</th>
+                <th>ステータス</th>
+                <th>期日</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr data-testid="task-row">
+                <td>
+                    <a href="/tasks/{{ task.id }}" class="text-decoration-none fw-semibold" data-testid="task-title">
+                        {{ task.title }}
+                    </a>
+                </td>
+                <td>
+                    {% if task.category %}
+                    <span class="color-swatch" style="background-color: {{ task.category.color }};"></span>
+                    <span data-testid="task-category">{{ task.category.name }}</span>
+                    {% else %}
+                    <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="badge bg-{{ PRIORITY_COLORS[task.priority.value] }} priority-indicator" data-testid="task-priority">
+                        {{ PRIORITY_LABELS[task.priority.value] }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge bg-{{ STATUS_COLORS[task.status.value] }}" data-testid="task-status">
+                        {{ STATUS_LABELS[task.status.value] }}
+                    </span>
+                </td>
+                <td>
+                    {% if task.due_date %}
+                    <span class="{% if task.due_date < today and task.status.value not in ('done', 'cancelled') %}overdue{% endif %}" data-testid="task-due-date">
+                        {{ task.due_date.strftime('%Y/%m/%d') }}
+                    </span>
+                    {% else %}
+                    <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <a href="/tasks/{{ task.id }}" class="btn btn-sm btn-outline-secondary">詳細</a>
+                        <a href="/tasks/{{ task.id }}/edit" class="btn btn-sm btn-outline-primary">編集</a>
+                        <form method="POST" action="/tasks/{{ task.id }}/delete" onsubmit="return confirm('このタスクを削除しますか？')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" data-testid="btn-delete-task">削除</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center text-muted py-5" data-testid="empty-task-list">
+    <p>タスクがありません</p>
+    <a href="/tasks/new" class="btn btn-primary">最初のタスクを作成する</a>
+</div>
+{% endif %}
+{% endblock %}

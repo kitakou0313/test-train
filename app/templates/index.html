@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}ダッシュボード - タスク管理{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">ダッシュボード</h1>
+    <a href="/tasks/new" class="btn btn-primary">+ タスクを作成</a>
+</div>
+
+<!-- ステータス別カード -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-status card-status-todo h-100">
+            <div class="card-body">
+                <p class="card-title text-muted mb-1">未着手</p>
+                <p class="display-6 mb-0" data-testid="count-todo">{{ counts.get("todo", 0) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-status card-status-in-progress h-100">
+            <div class="card-body">
+                <p class="card-title text-muted mb-1">進行中</p>
+                <p class="display-6 mb-0 text-primary" data-testid="count-in-progress">{{ counts.get("in_progress", 0) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-status card-status-done h-100">
+            <div class="card-body">
+                <p class="card-title text-muted mb-1">完了</p>
+                <p class="display-6 mb-0 text-success" data-testid="count-done">{{ counts.get("done", 0) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-status card-status-cancelled h-100">
+            <div class="card-body">
+                <p class="card-title text-muted mb-1">キャンセル</p>
+                <p class="display-6 mb-0 text-dark" data-testid="count-cancelled">{{ counts.get("cancelled", 0) }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 期限切れ -->
+<div class="card mb-4">
+    <div class="card-body d-flex align-items-center gap-3">
+        <div>
+            <p class="text-muted mb-0">期限切れタスク</p>
+            <p class="display-6 mb-0 overdue" data-testid="count-overdue">{{ overdue_count }}</p>
+        </div>
+        <a href="/tasks?status=todo" class="btn btn-outline-danger btn-sm ms-auto">未着手タスクを確認</a>
+    </div>
+</div>
+
+<!-- クイックリンク -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <a href="/tasks" class="btn btn-outline-secondary w-100">タスク一覧を見る</a>
+    </div>
+    <div class="col-md-6">
+        <a href="/categories" class="btn btn-outline-secondary w-100">カテゴリを管理する</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{{ task.title }} - タスク管理{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/tasks">タスク一覧</a></li>
+            <li class="breadcrumb-item active">{{ task.title }}</li>
+        </ol>
+    </nav>
+    <div class="d-flex gap-2">
+        <a href="/tasks/{{ task.id }}/edit" class="btn btn-outline-primary btn-sm">編集</a>
+        <form method="POST" action="/tasks/{{ task.id }}/delete" onsubmit="return confirm('このタスクを削除しますか？')">
+            <button type="submit" class="btn btn-outline-danger btn-sm" data-testid="btn-delete-task">削除</button>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h2 class="h4 mb-3" data-testid="task-title">{{ task.title }}</h2>
+
+        <div class="row g-3 mb-4">
+            <div class="col-sm-4">
+                <p class="text-muted mb-1 small">ステータス</p>
+                <span class="badge bg-{{ STATUS_COLORS[task.status.value] }} fs-6" data-testid="task-status-badge">
+                    {{ STATUS_LABELS[task.status.value] }}
+                </span>
+            </div>
+            <div class="col-sm-4">
+                <p class="text-muted mb-1 small">優先度</p>
+                <span class="badge bg-{{ PRIORITY_COLORS[task.priority.value] }}" data-testid="task-priority">
+                    {{ PRIORITY_LABELS[task.priority.value] }}
+                </span>
+            </div>
+            <div class="col-sm-4">
+                <p class="text-muted mb-1 small">カテゴリ</p>
+                {% if task.category %}
+                <span class="color-swatch" style="background-color: {{ task.category.color }};"></span>
+                <span data-testid="task-category">{{ task.category.name }}</span>
+                {% else %}
+                <span class="text-muted">なし</span>
+                {% endif %}
+            </div>
+            <div class="col-sm-4">
+                <p class="text-muted mb-1 small">期日</p>
+                {% if task.due_date %}
+                <span class="{% if task.due_date < today and task.status.value not in ('done', 'cancelled') %}overdue{% endif %}" data-testid="task-due-date">
+                    {{ task.due_date.strftime('%Y年%m月%d日') }}
+                </span>
+                {% else %}
+                <span class="text-muted">未設定</span>
+                {% endif %}
+            </div>
+            <div class="col-sm-4">
+                <p class="text-muted mb-1 small">作成日時</p>
+                <span>{{ task.created_at.strftime('%Y/%m/%d %H:%M') }}</span>
+            </div>
+            <div class="col-sm-4">
+                <p class="text-muted mb-1 small">更新日時</p>
+                <span>{{ task.updated_at.strftime('%Y/%m/%d %H:%M') }}</span>
+            </div>
+        </div>
+
+        {% if task.description %}
+        <div>
+            <p class="text-muted mb-1 small">説明</p>
+            <p class="task-description" data-testid="task-description">{{ task.description }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ステータス遷移ボタン -->
+{% if allowed_transitions %}
+<div class="card" data-testid="status-actions">
+    <div class="card-header">ステータスを変更</div>
+    <div class="card-body d-flex flex-wrap gap-2">
+        {% for status in allowed_transitions %}
+        <form method="POST" action="/tasks/{{ task.id }}/status">
+            <input type="hidden" name="new_status" value="{{ status.value }}">
+            <button type="submit" class="btn btn-outline-{{ STATUS_COLORS[status.value] }}" data-testid="btn-transition-{{ status.value }}">
+                {{ TRANSITION_LABELS[status.value] }}
+            </button>
+        </form>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

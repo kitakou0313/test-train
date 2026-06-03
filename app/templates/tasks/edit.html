@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}タスクを編集 - タスク管理{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/tasks">タスク一覧</a></li>
+            <li class="breadcrumb-item"><a href="/tasks/{{ task.id }}">{{ task.title }}</a></li>
+            <li class="breadcrumb-item active">編集</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="card">
+    <div class="card-header"><h2 class="h5 mb-0">タスクを編集</h2></div>
+    <div class="card-body">
+        <form method="POST" action="/tasks/{{ task.id }}" data-testid="edit-task-form">
+            <div class="mb-3">
+                <label class="form-label" for="title">タイトル <span class="text-danger">*</span></label>
+                <input type="text" id="title" name="title" class="form-control" required
+                    value="{{ task.title }}" data-testid="input-title">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="description">説明</label>
+                <textarea id="description" name="description" class="form-control" rows="3"
+                    data-testid="input-description">{{ task.description or '' }}</textarea>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-4">
+                    <label class="form-label" for="priority">優先度</label>
+                    <select id="priority" name="priority" class="form-select" data-testid="select-priority">
+                        <option value="low" {% if task.priority.value == 'low' %}selected{% endif %}>低</option>
+                        <option value="medium" {% if task.priority.value == 'medium' %}selected{% endif %}>中</option>
+                        <option value="high" {% if task.priority.value == 'high' %}selected{% endif %}>高</option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label" for="due_date">期日</label>
+                    <input type="date" id="due_date" name="due_date" class="form-control"
+                        value="{{ task.due_date.isoformat() if task.due_date else '' }}"
+                        data-testid="input-due-date">
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label" for="category_id">カテゴリ</label>
+                    <select id="category_id" name="category_id" class="form-select" data-testid="select-category">
+                        <option value="">なし</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if task.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary" data-testid="btn-submit">保存する</button>
+                <a href="/tasks/{{ task.id }}" class="btn btn-outline-secondary">キャンセル</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}タスクを作成 - タスク管理{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/tasks">タスク一覧</a></li>
+            <li class="breadcrumb-item active">タスクを作成</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="card">
+    <div class="card-header"><h2 class="h5 mb-0">新しいタスク</h2></div>
+    <div class="card-body">
+        <form method="POST" action="/tasks" data-testid="create-task-form">
+            <div class="mb-3">
+                <label class="form-label" for="title">タイトル <span class="text-danger">*</span></label>
+                <input type="text" id="title" name="title" class="form-control" required
+                    data-testid="input-title" placeholder="タスクのタイトルを入力">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="description">説明</label>
+                <textarea id="description" name="description" class="form-control" rows="3"
+                    data-testid="input-description" placeholder="詳細を入力（任意）"></textarea>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-4">
+                    <label class="form-label" for="priority">優先度</label>
+                    <select id="priority" name="priority" class="form-select" data-testid="select-priority">
+                        <option value="low">低</option>
+                        <option value="medium" selected>中</option>
+                        <option value="high">高</option>
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label" for="due_date">期日</label>
+                    <input type="date" id="due_date" name="due_date" class="form-control" data-testid="input-due-date">
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label" for="category_id">カテゴリ</label>
+                    <select id="category_id" name="category_id" class="form-select" data-testid="select-category">
+                        <option value="">なし</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary" data-testid="btn-submit">作成する</button>
+                <a href="/tasks" class="btn btn-outline-secondary">キャンセル</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

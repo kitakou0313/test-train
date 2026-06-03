@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}カテゴリ一覧 - タスク管理{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">カテゴリ一覧</h1>
+    <a href="/categories/new" class="btn btn-primary" data-testid="btn-create-category">+ カテゴリを作成</a>
+</div>
+
+{% if categories %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle" data-testid="category-table">
+        <thead class="table-light">
+            <tr>
+                <th>カラー</th>
+                <th>カテゴリ名</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cat in categories %}
+            <tr data-testid="category-row">
+                <td>
+                    <span class="color-swatch" style="background-color: {{ cat.color }};" data-testid="category-color"></span>
+                    <code class="small">{{ cat.color }}</code>
+                </td>
+                <td data-testid="category-name">{{ cat.name }}</td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <a href="/categories/{{ cat.id }}/edit" class="btn btn-sm btn-outline-primary">編集</a>
+                        <form method="POST" action="/categories/{{ cat.id }}/delete"
+                            onsubmit="return confirm('カテゴリ「{{ cat.name }}」を削除しますか？\n進行中タスクがある場合は削除できません。')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" data-testid="btn-delete-category">削除</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center text-muted py-5" data-testid="empty-category-list">
+    <p>カテゴリがありません</p>
+    <a href="/categories/new" class="btn btn-primary">最初のカテゴリを作成する</a>
+</div>
+{% endif %}
+{% endblock %}
