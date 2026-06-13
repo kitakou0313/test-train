@@ -93,16 +93,22 @@
 
 **遷移図：**
 
-```
-                  ┌─ 一時中断 ─────────────────┐
-                  │                             │
-[未着手 (todo)] ──┤─ 開始 ──→ [進行中 (in_progress)] ──→ [完了 (done)]
-      ↑           │                 │                         │
-      │           └─ キャンセル ─→  │                         │
-      │                             ↓                         │
-      │                    [キャンセル (cancelled)]            │
-      │                             │                         │
-      └──────────── 再オープン ─────┴─────────────────────────┘
+```mermaid
+stateDiagram-v2
+    [*] --> todo
+
+    state "未着手 (todo)" as todo
+    state "進行中 (in_progress)" as in_progress
+    state "完了 (done)" as done
+    state "キャンセル (cancelled)" as cancelled
+
+    todo --> in_progress : 開始
+    todo --> cancelled : キャンセル
+    in_progress --> todo : 一時中断
+    in_progress --> done : 完了
+    in_progress --> cancelled : キャンセル
+    done --> todo : 再オープン
+    cancelled --> todo : 再オープン
 ```
 
 ### 3.3 タスク優先度

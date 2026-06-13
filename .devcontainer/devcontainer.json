@@ -26,7 +26,8 @@
 			"extensions": [
 				"ms-python.python",
 				"ms-python.vscode-pylance",
-				"ms-playwright.playwright"
+				"ms-playwright.playwright",
+				"bierner.markdown-mermaid"
 			],
 			"settings": {
 				"python.defaultInterpreterPath": "/usr/local/bin/python3",
