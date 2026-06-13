@@ -17,6 +17,14 @@ from app.templates_config import render
 BASE_DIR = Path(__file__).parent
 
 
+class CacheControlStaticFiles(StaticFiles):
+    def file_response(self, full_path, stat_result, scope, status_code=200):
+        response = super().file_response(full_path, stat_result, scope, status_code)
+        if response.status_code == 200:
+            response.headers["Cache-Control"] = "public, max-age=86400, must-revalidate"
+        return response
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
@@ -26,7 +34,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="タスク管理アプリ", lifespan=lifespan)
 
 app.add_middleware(SessionMiddleware, secret_key=settings.secret_key)
-app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+app.mount("/static", CacheControlStaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 app.include_router(tasks.router)
 app.include_router(categories.router)
