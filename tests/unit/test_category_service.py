@@ -52,6 +52,14 @@ CategoryService の Unit テスト
 """
 
 import pytest
+from app.exceptions import InvalidColorError
+
+
+@pytest.mark.unit
+def test_create_category_with_invalid_color_raises(category_service):
+    with pytest.raises(InvalidColorError):
+        category_service.create_category(name="仕事", color="red")
+
 
 # TODO: ここにテストを実装してください
 #

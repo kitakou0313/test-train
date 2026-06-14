@@ -67,6 +67,19 @@ TaskService の Unit テスト
 """
 
 import pytest
+from app.models.task import TaskStatus
+from app.exceptions import InvalidStatusTransitionError
+
+
+@pytest.mark.unit
+def test_transition_done_to_in_progress_raises(task_service):
+    task = task_service.create_task(title="遷移テスト")
+    task_service.transition_status(task.id, TaskStatus.in_progress)
+    task_service.transition_status(task.id, TaskStatus.done)
+
+    with pytest.raises(InvalidStatusTransitionError):
+        task_service.transition_status(task.id, TaskStatus.in_progress)
+
 
 # TODO: ここにテストを実装してください
 #
