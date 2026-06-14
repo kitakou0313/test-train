@@ -71,6 +71,94 @@ from app.models.task import TaskStatus
 from app.exceptions import InvalidStatusTransitionError
 
 
+def _make_in_progress(task_service, title="タスク"):
+    task = task_service.create_task(title=title)
+    return task_service.transition_status(task.id, TaskStatus.in_progress)
+
+
+def _make_done(task_service, title="タスク"):
+    task = _make_in_progress(task_service, title)
+    return task_service.transition_status(task.id, TaskStatus.done)
+
+
+def _make_cancelled(task_service, title="タスク"):
+    task = task_service.create_task(title=title)
+    return task_service.transition_status(task.id, TaskStatus.cancelled)
+
+
+# todo → todo（不正: 同一ステータス）
+@pytest.mark.unit
+def test_transition_todo_to_todo_raises(task_service):
+    task = task_service.create_task(title="遷移テスト")
+    with pytest.raises(InvalidStatusTransitionError):
+        task_service.transition_status(task.id, TaskStatus.todo)
+
+
+# todo → in_progress（有効）
+@pytest.mark.unit
+def test_transition_todo_to_in_progress(task_service):
+    task = task_service.create_task(title="遷移テスト")
+    updated = task_service.transition_status(task.id, TaskStatus.in_progress)
+    assert updated.status == TaskStatus.in_progress
+
+
+# todo → done（不正）
+@pytest.mark.unit
+def test_transition_todo_to_done_raises(task_service):
+    task = task_service.create_task(title="遷移テスト")
+    with pytest.raises(InvalidStatusTransitionError):
+        task_service.transition_status(task.id, TaskStatus.done)
+
+
+# todo → cancelled（有効）
+@pytest.mark.unit
+def test_transition_todo_to_cancelled(task_service):
+    task = task_service.create_task(title="遷移テスト")
+    updated = task_service.transition_status(task.id, TaskStatus.cancelled)
+    assert updated.status == TaskStatus.cancelled
+
+
+# in_progress → todo（有効）
+@pytest.mark.unit
+def test_transition_in_progress_to_todo(task_service):
+    task = _make_in_progress(task_service)
+    updated = task_service.transition_status(task.id, TaskStatus.todo)
+    assert updated.status == TaskStatus.todo
+
+
+# in_progress → in_progress（不正: 同一ステータス）
+@pytest.mark.unit
+def test_transition_in_progress_to_in_progress_raises(task_service):
+    task = _make_in_progress(task_service)
+    with pytest.raises(InvalidStatusTransitionError):
+        task_service.transition_status(task.id, TaskStatus.in_progress)
+
+
+# in_progress → done（有効）
+@pytest.mark.unit
+def test_transition_in_progress_to_done(task_service):
+    task = _make_in_progress(task_service)
+    updated = task_service.transition_status(task.id, TaskStatus.done)
+    assert updated.status == TaskStatus.done
+
+
+# in_progress → cancelled（有効）
+@pytest.mark.unit
+def test_transition_in_progress_to_cancelled(task_service):
+    task = _make_in_progress(task_service)
+    updated = task_service.transition_status(task.id, TaskStatus.cancelled)
+    assert updated.status == TaskStatus.cancelled
+
+
+# done → todo（有効）
+@pytest.mark.unit
+def test_transition_done_to_todo(task_service):
+    task = _make_done(task_service)
+    updated = task_service.transition_status(task.id, TaskStatus.todo)
+    assert updated.status == TaskStatus.todo
+
+
+# done → in_progress（不正）
 @pytest.mark.unit
 def test_transition_done_to_in_progress_raises(task_service):
     task = task_service.create_task(title="遷移テスト")
@@ -81,12 +169,49 @@ def test_transition_done_to_in_progress_raises(task_service):
         task_service.transition_status(task.id, TaskStatus.in_progress)
 
 
-# TODO: ここにテストを実装してください
-#
-# ヒント: pytest.mark.unit デコレータを付けることで
-#         `pytest -m unit` で Unit test だけを実行できます
-#
-# 例:
-# @pytest.mark.unit
-# def test_xxx(task_service):
-#     ...
+# done → done（不正: 同一ステータス）
+@pytest.mark.unit
+def test_transition_done_to_done_raises(task_service):
+    task = _make_done(task_service)
+    with pytest.raises(InvalidStatusTransitionError):
+        task_service.transition_status(task.id, TaskStatus.done)
+
+
+# done → cancelled（不正）
+@pytest.mark.unit
+def test_transition_done_to_cancelled_raises(task_service):
+    task = _make_done(task_service)
+    with pytest.raises(InvalidStatusTransitionError):
+        task_service.transition_status(task.id, TaskStatus.cancelled)
+
+
+# cancelled → todo（有効）
+@pytest.mark.unit
+def test_transition_cancelled_to_todo(task_service):
+    task = _make_cancelled(task_service)
+    updated = task_service.transition_status(task.id, TaskStatus.todo)
+    assert updated.status == TaskStatus.todo
+
+
+# cancelled → in_progress（不正）
+@pytest.mark.unit
+def test_transition_cancelled_to_in_progress_raises(task_service):
+    task = _make_cancelled(task_service)
+    with pytest.raises(InvalidStatusTransitionError):
+        task_service.transition_status(task.id, TaskStatus.in_progress)
+
+
+# cancelled → done（不正）
+@pytest.mark.unit
+def test_transition_cancelled_to_done_raises(task_service):
+    task = _make_cancelled(task_service)
+    with pytest.raises(InvalidStatusTransitionError):
+        task_service.transition_status(task.id, TaskStatus.done)
+
+
+# cancelled → cancelled（不正: 同一ステータス）
+@pytest.mark.unit
+def test_transition_cancelled_to_cancelled_raises(task_service):
+    task = _make_cancelled(task_service)
+    with pytest.raises(InvalidStatusTransitionError):
+        task_service.transition_status(task.id, TaskStatus.cancelled)
