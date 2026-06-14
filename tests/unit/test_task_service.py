@@ -44,7 +44,7 @@ TaskService の Unit テスト
 
 === 使用するクラス・例外 ===
 
-    from app.models.task import TaskStatus, TaskPriority
+    from app.domain.task import TaskStatus, TaskPriority
     from app.exceptions import (
         InvalidStatusTransitionError,
         InvalidDueDateError,
@@ -55,7 +55,7 @@ TaskService の Unit テスト
 
     import pytest
     from datetime import date, timedelta
-    from app.models.task import TaskStatus
+    from app.domain.task import TaskStatus
 
     @pytest.mark.unit
     def test_start_task_from_todo(task_service):
@@ -67,7 +67,7 @@ TaskService の Unit テスト
 """
 
 import pytest
-from app.models.task import TaskStatus
+from app.domain.task import TaskStatus
 from app.exceptions import InvalidStatusTransitionError
 
 

@@ -1,17 +1,9 @@
-import re
 from typing import Optional
 
-from app.models.category import Category
+from app.domain.category import Category
+from app.exceptions import CategoryInUseError, DuplicateNameError, NotFoundError
 from app.repositories.category_repository import CategoryRepository
 from app.repositories.task_repository import TaskRepository
-from app.exceptions import (
-    NotFoundError,
-    CategoryInUseError,
-    DuplicateNameError,
-    InvalidColorError,
-)
-
-COLOR_PATTERN = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 
 class CategoryService:
@@ -29,10 +21,11 @@ class CategoryService:
         return category
 
     def create_category(self, name: str, color: str = "#6c757d") -> Category:
-        self._validate_color(color)
+        Category.validate_color(color)
         if self.category_repo.get_by_name(name) is not None:
             raise DuplicateNameError(f"カテゴリ名「{name}」はすでに使用されています")
-        return self.category_repo.create(name=name, color=color)
+        category = Category(id=0, name=name, color=color)
+        return self.category_repo.create(category)
 
     def update_category(
         self,
@@ -42,11 +35,15 @@ class CategoryService:
     ) -> Category:
         category = self.get_category(category_id)
         if color is not None:
-            self._validate_color(color)
+            Category.validate_color(color)
         if name is not None and name != category.name:
             if self.category_repo.get_by_name(name) is not None:
                 raise DuplicateNameError(f"カテゴリ名「{name}」はすでに使用されています")
-        return self.category_repo.update(category, name=name, color=color)
+        if name is not None:
+            category.name = name
+        if color is not None:
+            category.color = color
+        return self.category_repo.update(category)
 
     def delete_category(self, category_id: int) -> None:
         category = self.get_category(category_id)
@@ -57,9 +54,3 @@ class CategoryService:
             )
         self.task_repo.nullify_category(category_id)
         self.category_repo.delete(category)
-
-    def _validate_color(self, color: str) -> None:
-        if not COLOR_PATTERN.match(color):
-            raise InvalidColorError(
-                "カラーコードは #RRGGBB 形式で入力してください（例: #ff0000）"
-            )

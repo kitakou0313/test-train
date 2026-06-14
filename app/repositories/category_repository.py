@@ -1,43 +1,77 @@
-from typing import Optional
-from sqlalchemy.orm import Session
+from datetime import datetime
+from typing import Optional, TYPE_CHECKING
 
-from app.models.category import Category
+from sqlalchemy import DateTime, String
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+
+from app.database import Base
+from app.domain.category import Category
+
+if TYPE_CHECKING:
+    from app.repositories.task_repository import TaskRecord
+
+
+class CategoryRecord(Base):
+    __tablename__ = "categories"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    color: Mapped[str] = mapped_column(String(7), nullable=False, default="#6c757d")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.utcnow
+    )
+
+    tasks: Mapped[list["TaskRecord"]] = relationship("TaskRecord", back_populates="category")
 
 
 class CategoryRepository:
     def __init__(self, db: Session):
         self.db = db
 
+    def _to_domain(self, record: CategoryRecord) -> Category:
+        return Category(
+            id=record.id,
+            name=record.name,
+            color=record.color,
+            created_at=record.created_at,
+        )
+
     def get_all(self) -> list[Category]:
-        return self.db.query(Category).order_by(Category.name).all()
+        records = self.db.query(CategoryRecord).order_by(CategoryRecord.name).all()
+        return [self._to_domain(r) for r in records]
 
     def get_by_id(self, category_id: int) -> Optional[Category]:
-        return self.db.query(Category).filter(Category.id == category_id).first()
+        record = (
+            self.db.query(CategoryRecord).filter(CategoryRecord.id == category_id).first()
+        )
+        return self._to_domain(record) if record else None
 
     def get_by_name(self, name: str) -> Optional[Category]:
-        return self.db.query(Category).filter(Category.name == name).first()
+        record = (
+            self.db.query(CategoryRecord).filter(CategoryRecord.name == name).first()
+        )
+        return self._to_domain(record) if record else None
 
-    def create(self, name: str, color: str) -> Category:
-        category = Category(name=name, color=color)
-        self.db.add(category)
+    def create(self, category: Category) -> Category:
+        record = CategoryRecord(name=category.name, color=category.color)
+        self.db.add(record)
         self.db.commit()
-        self.db.refresh(category)
-        return category
+        self.db.refresh(record)
+        return self._to_domain(record)
 
-    def update(
-        self,
-        category: Category,
-        name: Optional[str] = None,
-        color: Optional[str] = None,
-    ) -> Category:
-        if name is not None:
-            category.name = name
-        if color is not None:
-            category.color = color
+    def update(self, category: Category) -> Category:
+        record = (
+            self.db.query(CategoryRecord).filter(CategoryRecord.id == category.id).first()
+        )
+        record.name = category.name
+        record.color = category.color
         self.db.commit()
-        self.db.refresh(category)
-        return category
+        self.db.refresh(record)
+        return self._to_domain(record)
 
     def delete(self, category: Category) -> None:
-        self.db.delete(category)
+        record = (
+            self.db.query(CategoryRecord).filter(CategoryRecord.id == category.id).first()
+        )
+        self.db.delete(record)
         self.db.commit()

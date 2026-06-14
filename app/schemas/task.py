@@ -2,7 +2,7 @@ from datetime import datetime, date
 from typing import Optional
 from pydantic import BaseModel
 
-from app.models.task import TaskStatus, TaskPriority
+from app.domain.task import TaskStatus, TaskPriority
 
 
 class TaskCreate(BaseModel):

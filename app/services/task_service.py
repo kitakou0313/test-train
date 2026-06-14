@@ -1,22 +1,10 @@
 from datetime import date
 from typing import Optional
 
-from app.models.task import Task, TaskStatus, TaskPriority
-from app.repositories.task_repository import TaskRepository
+from app.domain.task import Task, TaskPriority, TaskStatus
+from app.exceptions import NotFoundError
 from app.repositories.category_repository import CategoryRepository
-from app.exceptions import (
-    NotFoundError,
-    InvalidStatusTransitionError,
-    InvalidDueDateError,
-)
-
-# ステータス遷移の許可ルール
-ALLOWED_TRANSITIONS: dict[TaskStatus, set[TaskStatus]] = {
-    TaskStatus.todo: {TaskStatus.in_progress, TaskStatus.cancelled},
-    TaskStatus.in_progress: {TaskStatus.done, TaskStatus.todo, TaskStatus.cancelled},
-    TaskStatus.done: {TaskStatus.todo},
-    TaskStatus.cancelled: {TaskStatus.todo},
-}
+from app.repositories.task_repository import TaskRepository
 
 
 class TaskService:
@@ -54,17 +42,19 @@ class TaskService:
         due_date: Optional[date] = None,
         category_id: Optional[int] = None,
     ) -> Task:
-        if due_date is not None and due_date < date.today():
-            raise InvalidDueDateError("期日に過去の日付は設定できません")
+        Task.validate_due_date(due_date)
         if category_id is not None and self.category_repo.get_by_id(category_id) is None:
             raise NotFoundError(f"カテゴリ ID={category_id} が見つかりません")
-        return self.task_repo.create(
+        task = Task(
+            id=0,
             title=title,
             description=description,
+            status=TaskStatus.todo,
             priority=priority,
             due_date=due_date,
             category_id=category_id,
         )
+        return self.task_repo.create(task)
 
     def update_task(
         self,
@@ -76,34 +66,24 @@ class TaskService:
         category_id: Optional[int],
     ) -> Task:
         task = self.get_task(task_id)
-        if due_date is not None and due_date < date.today():
-            raise InvalidDueDateError("期日に過去の日付は設定できません")
+        Task.validate_due_date(due_date)
         if category_id is not None and self.category_repo.get_by_id(category_id) is None:
             raise NotFoundError(f"カテゴリ ID={category_id} が見つかりません")
-        return self.task_repo.update(
-            task,
-            title=title,
-            description=description,
-            priority=priority,
-            due_date=due_date,
-            category_id=category_id,
-        )
+        task.title = title
+        task.description = description
+        task.priority = priority
+        task.due_date = due_date
+        task.category_id = category_id
+        return self.task_repo.update(task)
 
     def transition_status(self, task_id: int, new_status: TaskStatus) -> Task:
         task = self.get_task(task_id)
-        current = task.status
-        if current == new_status:
-            raise InvalidStatusTransitionError(
-                f"タスクはすでに「{new_status.value}」状態です"
-            )
-        if new_status not in ALLOWED_TRANSITIONS.get(current, set()):
-            raise InvalidStatusTransitionError(
-                f"「{current.value}」から「{new_status.value}」への遷移は許可されていません"
-            )
-        return self.task_repo.update(task, status=new_status)
+        task.validate_transition(new_status)
+        task.status = new_status
+        return self.task_repo.update(task)
 
     def get_allowed_transitions(self, task: Task) -> set[TaskStatus]:
-        return ALLOWED_TRANSITIONS.get(task.status, set())
+        return task.get_allowed_transitions()
 
     def delete_task(self, task_id: int) -> None:
         task = self.get_task(task_id)

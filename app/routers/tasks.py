@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse
 
 from app.dependencies import get_category_service, get_task_service
 from app.exceptions import AppError, NotFoundError
-from app.models.task import TaskPriority, TaskStatus
+from app.domain.task import TaskPriority, TaskStatus
 from app.services.category_service import CategoryService
 from app.services.task_service import TaskService
 from app.templates_config import render
