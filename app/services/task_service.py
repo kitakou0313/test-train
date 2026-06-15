@@ -78,8 +78,7 @@ class TaskService:
 
     def transition_status(self, task_id: int, new_status: TaskStatus) -> Task:
         task = self.get_task(task_id)
-        task.validate_transition(new_status)
-        task.status = new_status
+        task.transition_to(new_status)
         return self.task_repo.update(task)
 
     def get_allowed_transitions(self, task: Task) -> set[TaskStatus]:

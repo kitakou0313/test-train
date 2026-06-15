@@ -52,6 +52,10 @@ class Task:
                 f"「{self.status.value}」から「{new_status.value}」への遷移は許可されていません"
             )
 
+    def transition_to(self, new_status: TaskStatus) -> None:
+        self.validate_transition(new_status)
+        self.status = new_status
+
     @staticmethod
     def validate_due_date(due_date: Optional[date]) -> None:
         if due_date is not None and due_date < date.today():
