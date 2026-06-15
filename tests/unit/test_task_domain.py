@@ -25,9 +25,9 @@ def _create_task_cancelled():
 @pytest.mark.unit
 def test_transition_todo_to_todo_raises(task_service):
     task = _create_task_todo()
+    
     with pytest.raises(InvalidStatusTransitionError):
-        task_service.transition_status(task.id, TaskStatus.todo)
-
+        task.transition_to(TaskStatus.todo)
 
 # todo → in_progress（有効）
 @pytest.mark.unit
