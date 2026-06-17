@@ -6,7 +6,9 @@ TaskService の Unit テスト
 
 import pytest
 from app.domain.task import TaskStatus, Task, TaskPriority
-from app.exceptions import InvalidStatusTransitionError
+from app.exceptions import InvalidStatusTransitionError, InvalidDueDateError
+from freezegun import freeze_time
+from datetime import datetime, date
 
 def _create_task_todo(): 
     task = Task(id=1, title="遷移テスト", status=TaskStatus.todo, priority=TaskPriority.medium)
@@ -164,3 +166,47 @@ def test_transition_cancelled_to_cancelled_raises():
 
     with pytest.raises(InvalidStatusTransitionError):
         task.transition_to(TaskStatus.cancelled)
+
+
+# 期日の設定テスト
+
+# Noneの時
+@pytest.mark.unit
+def test_set_due_date_none():
+    task = _create_task_todo()
+
+    task.set_due_date(None)
+
+    assert task.due_date == None
+
+# 作成時の1日前
+@pytest.mark.unit
+@freeze_time("2026-06-10 10:00:00")
+def test_set_due_date_before_creation_day():
+    task = _create_task_todo()
+    target_date = date(2026, 6, 9)
+
+    with pytest.raises(InvalidDueDateError):
+        task.set_due_date(target_date)
+
+# 作成時の当日
+@pytest.mark.unit
+@freeze_time("2026-06-10 10:00:00")
+def test_set_due_date_on_creation_day():
+    task = _create_task_todo()
+    target_date = date(2026, 6, 10)
+
+    task.set_due_date(target_date)
+
+    assert target_date == target_date
+
+# 作成時の1日後
+@pytest.mark.unit
+@freeze_time("2026-06-10 10:00:00")
+def test_set_due_date_after_creation_day():
+    task = _create_task_todo()
+    target_date = date(2026, 6, 10)
+
+    task.set_due_date(target_date)
+
+    assert task.due_date == target_date
