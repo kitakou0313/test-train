@@ -42,14 +42,11 @@ class TaskService:
         due_date: Optional[date] = None,
         category_id: Optional[int] = None,
     ) -> Task:
-        Task.validate_due_date(due_date)
         if category_id is not None and self.category_repo.get_by_id(category_id) is None:
             raise NotFoundError(f"カテゴリ ID={category_id} が見つかりません")
-        task = Task(
-            id=0,
+        task = Task.create(
             title=title,
             description=description,
-            status=TaskStatus.todo,
             priority=priority,
             due_date=due_date,
             category_id=category_id,
@@ -66,13 +63,12 @@ class TaskService:
         category_id: Optional[int],
     ) -> Task:
         task = self.get_task(task_id)
-        Task.validate_due_date(due_date)
         if category_id is not None and self.category_repo.get_by_id(category_id) is None:
             raise NotFoundError(f"カテゴリ ID={category_id} が見つかりません")
         task.title = title
         task.description = description
         task.priority = priority
-        task.due_date = due_date
+        task.set_due_date(due_date)
         task.category_id = category_id
         return self.task_repo.update(task)
 

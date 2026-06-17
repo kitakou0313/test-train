@@ -56,7 +56,31 @@ class Task:
         self.validate_transition(new_status)
         self.status = new_status
 
+    @classmethod
+    def create(
+        cls,
+        title: str,
+        priority: TaskPriority,
+        description: Optional[str] = None,
+        due_date: Optional[date] = None,
+        category_id: Optional[int] = None,
+    ) -> "Task":
+        cls._validate_due_date(due_date)
+        return cls(
+            id=0,
+            title=title,
+            status=TaskStatus.todo,
+            priority=priority,
+            description=description,
+            due_date=due_date,
+            category_id=category_id,
+        )
+
+    def set_due_date(self, due_date: Optional[date]) -> None:
+        self._validate_due_date(due_date)
+        self.due_date = due_date
+
     @staticmethod
-    def validate_due_date(due_date: Optional[date]) -> None:
+    def _validate_due_date(due_date: Optional[date]) -> None:
         if due_date is not None and due_date < date.today():
             raise InvalidDueDateError("期日に過去の日付は設定できません")
