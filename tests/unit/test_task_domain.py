@@ -205,7 +205,7 @@ def test_set_due_date_on_creation_day():
 @freeze_time("2026-06-10 10:00:00")
 def test_set_due_date_after_creation_day():
     task = _create_task_todo()
-    target_date = date(2026, 6, 10)
+    target_date = date(2026, 6, 11)
 
     task.set_due_date(target_date)
 
