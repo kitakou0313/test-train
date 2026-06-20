@@ -43,4 +43,21 @@
 import pytest
 from playwright.sync_api import Page, expect
 
-# TODO: ここにテストを実装してください
+
+@pytest.mark.e2e
+def test_todo_to_in_progress(page: Page, live_server: str, seed_data):
+    """todo → in_progress 遷移が成功し、ステータスバッジが変わる"""
+    page.goto(f"{live_server}/tasks")
+
+    # seed_data の "プロジェクト資料作成"（status=todo）の詳細ページへ移動
+    page.locator("[data-testid='task-title']", has_text="プロジェクト資料作成").click()
+    page.wait_for_url(f"{live_server}/tasks/*")
+
+    # 初期ステータスが todo（未着手）であることを確認
+    expect(page.locator("[data-testid='task-status-badge']")).to_have_text("未着手")
+
+    # 「開始する」ボタンをクリックして in_progress へ遷移
+    page.locator("[data-testid='btn-transition-in_progress']").click()
+
+    # ステータスバッジが in_progress（進行中）に変わることを確認
+    expect(page.locator("[data-testid='task-status-badge']")).to_have_text("進行中")

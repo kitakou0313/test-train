@@ -8,6 +8,10 @@
 - Perfornamce Test
     - Lighthouse
 - 各テストの品質の評価
+- CI/CDの整備
+- 仕様書のみ生成AIで生成 -> テスト実装 -> 実装をCoding Agentに任せる フローを実施してみる
+- ドメインの記述方法を整理
+    - 要件の定義の方法
 
 ## セットアップ
 
@@ -35,13 +39,13 @@ uvicorn app.main:app --reload --port 8000
 
 ```bash
 # Unit test のみ
-pytest -m unit
+pytest -v -m unit
 
 # e2e test のみ
-pytest -m e2e
+pytest -v -m e2e
 
 # すべてのテスト
-pytest
+pytest -v
 ```
 
 ## 想定するシチュエーション

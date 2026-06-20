@@ -119,8 +119,9 @@ def seed_data(live_server: str):
     テストごとにDBをリセットして再投入するため、
     各テストは同じ初期状態から実行される。
     """
-    from app.models.category import Category
-    from app.models.task import Task, TaskPriority, TaskStatus
+    from app.repositories.category_repository import CategoryRecord as Category
+    from app.repositories.task_repository import TaskRecord as Task
+    from app.domain.task import TaskPriority, TaskStatus
 
     db = _TestingSessionLocal()
     try:
