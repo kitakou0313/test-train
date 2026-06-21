@@ -164,6 +164,173 @@ pytest tests/e2e/test_task_crud.py::test_create_task -m e2e
 `page` フィクスチャから得られる `Page` オブジェクトは、ブラウザタブ1つを表します。
 このオブジェクトを通じてページへの移動・要素の操作・情報の取得を行います。
 
+どんな時に使うかを意識してみる
+
+### Page API 一覧
+
+#### プロパティ
+
+| プロパティ | 型 | 説明 |
+|-----------|-----|------|
+| `page.url` | `str` | 現在のページ URL |
+| `page.viewport_size` | `ViewportSize \| None` | ビューポートサイズ |
+| `page.keyboard` | `Keyboard` | キーボード操作オブジェクト |
+| `page.mouse` | `Mouse` | マウス操作オブジェクト |
+| `page.touchscreen` | `Touchscreen` | タッチ操作オブジェクト |
+| `page.context` | `BrowserContext` | ページが属するブラウザコンテキスト |
+| `page.clock` | `Clock` | 時刻・タイマー操作オブジェクト |
+| `page.main_frame` | `Frame` | ページのメインフレーム |
+| `page.frames` | `list[Frame]` | ページ内の全フレーム |
+| `page.workers` | `list[Worker]` | ページ内の Web Worker 一覧 |
+| `page.request` | `APIRequestContext` | HTTP リクエスト送信オブジェクト |
+| `page.video` | `Video \| None` | 録画オブジェクト（録画設定時のみ） |
+
+#### ナビゲーション系
+
+| API | 説明 |
+|-----|------|
+| `page.goto(url)` | 指定 URL に移動（読み込み完了まで自動待機） |
+| `page.go_back()` | ブラウザの「戻る」と同じ操作 |
+| `page.go_forward()` | ブラウザの「進む」と同じ操作 |
+| `page.reload()` | ページをリロード |
+| `page.wait_for_url(url)` | URL が一致するまで待機（`str` / 正規表現 / 関数を指定可） |
+| `page.wait_for_load_state(state)` | `"load"` / `"domcontentloaded"` / `"networkidle"` まで待機 |
+
+#### 要素の取得系
+
+| API | 説明 |
+|-----|------|
+| `page.locator(selector)` | CSS セレクターで Locator を取得（**推奨**） |
+| `page.get_by_text(text)` | テキスト内容で要素を取得 |
+| `page.get_by_role(role, *, name=...)` | ARIA ロールとアクセシブル名で要素を取得 |
+| `page.get_by_label(text)` | `<label>` テキストで入力要素を取得 |
+| `page.get_by_placeholder(text)` | `placeholder` 属性で入力要素を取得 |
+| `page.get_by_test_id(id)` | `data-testid` 属性で要素を取得 |
+| `page.get_by_title(text)` | `title` 属性で要素を取得 |
+| `page.get_by_alt_text(text)` | `alt` 属性で画像などを取得 |
+| `page.frame_locator(selector)` | iframe 内の要素を対象にした FrameLocator を取得 |
+| `page.frame(name=..., url=...)` | 名前または URL でフレームを取得 |
+| `page.query_selector(selector)` | 最初の一致要素を取得（非推奨。`locator` を推奨） |
+| `page.query_selector_all(selector)` | 全一致要素をリストで取得（非推奨。`locator` を推奨） |
+| `page.wait_for_selector(selector)` | セレクターに一致する要素が現れるまで待機 |
+
+#### 操作系
+
+| API | 説明 |
+|-----|------|
+| `page.click(selector)` | 要素をクリック |
+| `page.dblclick(selector)` | 要素をダブルクリック |
+| `page.tap(selector)` | 要素をタップ（モバイルエミュレーション時） |
+| `page.fill(selector, value)` | テキストフィールドを `value` で上書き入力 |
+| `page.type(selector, text)` | テキストを 1 文字ずつ入力（実際のキー入力をシミュレート） |
+| `page.press(selector, key)` | キーを押す（例: `"Enter"`, `"Tab"`, `"Escape"`） |
+| `page.check(selector)` | チェックボックスをオン |
+| `page.uncheck(selector)` | チェックボックスをオフ |
+| `page.set_checked(selector, checked)` | チェックボックスの状態を `bool` で指定 |
+| `page.select_option(selector, value)` | `<select>` で value / label / index によりオプションを選択 |
+| `page.hover(selector)` | 要素にマウスオーバー |
+| `page.focus(selector)` | 要素にフォーカス |
+| `page.drag_and_drop(source, target)` | source から target へドラッグ＆ドロップ |
+| `page.set_input_files(selector, files)` | `<input type="file">` にファイルをセット |
+| `page.dispatch_event(selector, type)` | 指定要素に DOM イベントを発行 |
+
+#### 待機系
+
+| API | 説明 |
+|-----|------|
+| `page.wait_for_url(url)` | URL が一致するまで待機 |
+| `page.wait_for_selector(selector)` | セレクターに一致する要素が現れるまで待機 |
+| `page.wait_for_load_state(state)` | 指定ロード状態まで待機 |
+| `page.wait_for_function(expression)` | JS 式が truthy になるまで待機 |
+| `page.wait_for_timeout(ms)` | 指定ミリ秒待機（Playwright の自動待機で通常不要） |
+
+#### 情報取得系
+
+| API | 説明 |
+|-----|------|
+| `page.title()` | ページのタイトルを返す |
+| `page.content()` | ページの HTML 全体を文字列で返す |
+| `page.inner_text(selector)` | 要素の表示テキスト（`innerText`）を返す |
+| `page.inner_html(selector)` | 要素の内部 HTML を返す |
+| `page.text_content(selector)` | 要素の `textContent` を返す（非表示テキストも含む） |
+| `page.input_value(selector)` | `<input>` / `<textarea>` の現在の値を返す |
+| `page.get_attribute(selector, name)` | 要素の属性値を返す |
+| `page.is_visible(selector)` | 要素が表示されているか（`bool`） |
+| `page.is_hidden(selector)` | 要素が非表示か（`bool`） |
+| `page.is_checked(selector)` | チェックボックスがオンか（`bool`） |
+| `page.is_enabled(selector)` | 要素が操作可能か（`bool`） |
+| `page.is_disabled(selector)` | 要素が無効か（`bool`） |
+| `page.is_editable(selector)` | 要素が編集可能か（`bool`） |
+| `page.is_closed()` | ページが閉じられているか（`bool`） |
+| `page.evaluate(expression)` | JavaScript を実行して結果を返す |
+| `page.evaluate_handle(expression)` | JavaScript を実行して `JSHandle` を返す |
+| `page.aria_snapshot()` | ARIA ツリーのテキストスナップショットを返す |
+
+#### ページ設定系
+
+| API | 説明 |
+|-----|------|
+| `page.set_viewport_size(size)` | ビューポートサイズを設定（例: `{"width": 1280, "height": 720}`） |
+| `page.set_default_timeout(timeout)` | デフォルトタイムアウト（ミリ秒）を設定 |
+| `page.set_default_navigation_timeout(timeout)` | ナビゲーションのデフォルトタイムアウトを設定 |
+| `page.emulate_media(media=..., color_scheme=...)` | メディアタイプや配色をエミュレート |
+| `page.set_content(html)` | HTML 文字列を直接ページにセット |
+| `page.set_extra_http_headers(headers)` | 全リクエストに付与する追加 HTTP ヘッダーを設定 |
+| `page.add_init_script(script)` | ページ読み込みごとに実行される JS スクリプトを登録 |
+
+#### ネットワーク / ルーティング系
+
+| API | 説明 |
+|-----|------|
+| `page.route(url, handler)` | URL パターンに一致するリクエストをインターセプト |
+| `page.unroute(url)` | 指定 URL パターンのルーティングを解除 |
+| `page.unroute_all()` | 全ルーティングを解除 |
+| `page.route_from_har(har)` | HAR ファイルを使ってリクエストをモック |
+| `page.route_web_socket(url, handler)` | WebSocket 接続をインターセプト |
+
+#### イベント待機系（`expect_*`）
+
+コンテキストマネージャーとして使用し、ブロック内の操作でイベントが発生するのを待ちます。
+
+| API | 説明 |
+|-----|------|
+| `page.expect_navigation()` | ページナビゲーションを待機 |
+| `page.expect_request(url)` | 指定 URL へのリクエストを待機 |
+| `page.expect_response(url)` | 指定 URL からのレスポンスを待機 |
+| `page.expect_request_finished(url)` | リクエストの完了を待機 |
+| `page.expect_download()` | ファイルダウンロードの開始を待機 |
+| `page.expect_popup()` | 新規ポップアップウィンドウの開きを待機 |
+| `page.expect_file_chooser()` | ファイル選択ダイアログの表示を待機 |
+| `page.expect_console_message()` | コンソールメッセージの発生を待機 |
+| `page.expect_websocket(url)` | WebSocket 接続の確立を待機 |
+| `page.expect_worker(url)` | Web Worker の生成を待機 |
+
+```python
+# 使用例: ダウンロードボタンをクリックしてダウンロード完了を待つ
+with page.expect_download() as download_info:
+    page.click("[data-testid='btn-download']")
+download = download_info.value
+```
+
+#### その他
+
+| API | 説明 |
+|-----|------|
+| `page.screenshot(**kwargs)` | スクリーンショットを撮影（`path=` でファイル保存も可） |
+| `page.pdf(**kwargs)` | PDF として保存（Chromium のみ） |
+| `page.pause()` | Playwright Inspector を開いてデバッグ一時停止 |
+| `page.close()` | ページを閉じる |
+| `page.bring_to_front()` | ページをブラウザの最前面に移動 |
+| `page.opener()` | このページを開いた親ページを返す（`None` の場合も） |
+| `page.expose_function(name, callback)` | Python 関数をページ内の JS から呼び出せるようにする |
+| `page.add_locator_handler(locator, handler)` | 特定のロケーターが現れたときのハンドラーを登録 |
+| `page.remove_locator_handler(locator)` | ロケーターハンドラーを削除 |
+| `page.requests()` | ページが送受信した HTTP リクエスト一覧を返す |
+| `page.console_messages()` | キャプチャ済みのコンソールメッセージ一覧を返す |
+| `page.page_errors()` | キャプチャ済みのページエラー一覧を返す |
+
+---
+
 ### ナビゲーション
 
 ```python
