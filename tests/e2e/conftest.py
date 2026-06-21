@@ -55,6 +55,8 @@ import uvicorn
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from freezegun import freeze_time
+
 TEST_DATABASE_URL = "sqlite:///./test_e2e.sqlite3"
 TEST_PORT = 8001
 
@@ -65,6 +67,7 @@ _TestingSessionLocal = sessionmaker(bind=_test_engine)
 
 
 @pytest.fixture(scope="session")
+# @freeze_time("2026-06-10 10:00:00")
 def live_server() -> Generator[str, None, None]:
     """
     テスト用の FastAPI サーバーをバックグラウンドスレッドで起動する。
