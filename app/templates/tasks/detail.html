@@ -10,7 +10,7 @@
         </ol>
     </nav>
     <div class="d-flex gap-2">
-        <a href="/tasks/{{ task.id }}/edit" class="btn btn-outline-primary btn-sm">編集</a>
+        <a href="/tasks/{{ task.id }}/edit" class="btn btn-outline-primary btn-sm" data-testid="btn-edit-task">編集</a>
         <form method="POST" action="/tasks/{{ task.id }}/delete" onsubmit="return confirm('このタスクを削除しますか？')">
             <button type="submit" class="btn btn-outline-danger btn-sm" data-testid="btn-delete-task">削除</button>
         </form>
@@ -40,7 +40,7 @@
                 <span class="color-swatch" style="background-color: {{ task.category.color }};"></span>
                 <span data-testid="task-category">{{ task.category.name }}</span>
                 {% else %}
-                <span class="text-muted">なし</span>
+                <span class="text-muted" data-testid="task-category">なし</span>
                 {% endif %}
             </div>
             <div class="col-sm-4">
@@ -50,16 +50,16 @@
                     {{ task.due_date.strftime('%Y年%m月%d日') }}
                 </span>
                 {% else %}
-                <span class="text-muted">未設定</span>
+                <span class="text-muted" data-testid="task-due-date">未設定</span>
                 {% endif %}
             </div>
             <div class="col-sm-4">
                 <p class="text-muted mb-1 small">作成日時</p>
-                <span>{{ task.created_at.strftime('%Y/%m/%d %H:%M') }}</span>
+                <span data-testid="task-created-at">{{ task.created_at.strftime('%Y/%m/%d %H:%M') }}</span>
             </div>
             <div class="col-sm-4">
                 <p class="text-muted mb-1 small">更新日時</p>
-                <span>{{ task.updated_at.strftime('%Y/%m/%d %H:%M') }}</span>
+                <span data-testid="task-updated-at">{{ task.updated_at.strftime('%Y/%m/%d %H:%M') }}</span>
             </div>
         </div>
 
