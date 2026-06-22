@@ -17,11 +17,13 @@ def test_task_detail_page_content(page: Page, live_server: str, seed_data):
     # 優先度
     expect(page.locator('[data-testid="task-priority"]')).to_have_text("高")
     # 期日
-
+    expect(page.locator('[data-testid="task-due-date"]')).to_have_text("未設定")
     # カテゴリ名
     expect(page.locator('[data-testid="task-category"]')).to_have_text("なし")
     # 作成日時
+    expect(page.locator('[data-testid="task-created-at"]')).to_have_text("2026/06/10 10:00")
     # 更新日時
+    expect(page.locator('[data-testid="task-updated-at"]')).to_have_text("2026/06/10 10:00")
     # ステータス遷移ボタン
     expect(page.locator('[data-testid="btn-edit-task"]'))
     # 編集・削除ボタン
