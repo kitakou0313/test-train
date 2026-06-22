@@ -67,7 +67,6 @@ _TestingSessionLocal = sessionmaker(bind=_test_engine)
 
 
 @pytest.fixture(scope="session")
-# @freeze_time("2026-06-10 10:00:00")
 def live_server() -> Generator[str, None, None]:
     """
     テスト用の FastAPI サーバーをバックグラウンドスレッドで起動する。
@@ -115,6 +114,7 @@ def live_server() -> Generator[str, None, None]:
 
 
 @pytest.fixture
+@freeze_time("2026-06-10 10:00:00")
 def seed_data(live_server: str):
     """
     テスト用のサンプルデータをDBに投入する。
