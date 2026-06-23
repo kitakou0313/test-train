@@ -47,7 +47,7 @@
                 <p class="text-muted mb-1 small">期日</p>
                 {% if task.due_date %}
                 <span class="{% if task.due_date < today and task.status.value not in ('done', 'cancelled') %}overdue{% endif %}" data-testid="task-due-date">
-                    {{ task.due_date.strftime('%Y年%m月%d日') }}
+                    {{ task.due_date.strftime('%Y/%m/%d %H:%M') }}
                 </span>
                 {% else %}
                 <span class="text-muted" data-testid="task-due-date">未設定</span>

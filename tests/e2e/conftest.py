@@ -148,6 +148,7 @@ def seed_data(live_server: str):
                 status=TaskStatus.todo,
                 priority=TaskPriority.high,
                 category_id=work.id,
+                description="プロジェクトのキックオフのための資料を作成"
             ),
             Task(
                 title="週次レポート",
