@@ -10,4 +10,28 @@
     - cancell
     - done
 - 禁止
-    - ToDo
+    - todo
+
+## in_progressからの遷移
+- 可能な遷移先
+    - done
+    - todo
+    - cancelled
+- 禁止
+    - in_progress
+
+## doneからの遷移
+- 可能な遷移先
+    - todo
+- 禁止
+    - done
+    - in_progress
+    - cancelled
+
+## cancelledからの遷移
+- 可能な遷移先
+    - todo
+- 禁止
+    - done
+    - in_progress
+    - cancelled
